@@ -9,9 +9,15 @@ img3 = cv2.imread('./3.jpg', cv2.COLOR_BGR2RGB) # ndarray: (480, 640, 3)
 class TensorManipulator:
     #TODO: 작성 필요
     def __init__(self, img1, img2, img3):
-        self.img1 = torch.Tensor(img1)
-        self.img2 = torch.Tensor(img2)
-        self.img3 = torch.Tensor(img3)
+        """
+        이미지들을 입력받아 pytorch tensor로 변환
+        """
+        # permute: (480, 640, 3) -> (3, 480, 640)
+        # unsqueeze: (3, 480, 640) -> (1, 3, 480, 640)
+        self.img1 = torch.tensor(img1, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0)
+        self.img2 = torch.tensor(img2, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0)
+        self.img3 = torch.tensor(img3, dtype=torch.float32).permute(2, 0, 1).unsqueeze(0)
+
 
     def concatenation(self):
         """
@@ -22,16 +28,27 @@ class TensorManipulator:
         return torch.cat((self.img1, self.img2, self.img3), dim=0)
     
     def flatten(self, tensor):
-        return tensor.view(-1)
+        """
+        concatenation() 함수 결과물인 (3, 3, 480, 640) 크기의 텐서를 (3, 921600) 크기로 변환하여 반환
+        3*480*640 = 921600
+        """
+        return torch.flatten(tensor, start_dim=1)
     
     def average(self, tensor):
-        return torch.mean(tensor)
-    
-    def print(self):
-        print(self.img1, self.img1.shape)
+        """
+        flatten()함수의 결과물인 (3, 921600) 크기의 텐서를 입력받아 각 이미지 텐서들의 평균을 반환
+        - 이미지 1번 값들의 평균은 144.0534, 이미지 2번 값들의 평균은 136.8974, 이미지 3번 값들의 평균은 85.5971
+        - 값의 형태가 실수형임에 유의
+        - 해당 평균값들은 라이브러리 및 연산 방식에 따라 조금씩 다를 수 있음
+        """
+        return torch.mean(tensor, dim=1)
 
 obj = TensorManipulator(img1, img2, img3)
+
 out = obj.concatenation()
 out_flt = obj.flatten(out)
 out_avg = obj.average(out_flt)
-print(out.shape, out_flt.shape, out_avg)
+
+print(out.shape)
+print(out_flt.shape)
+print(out_avg)
