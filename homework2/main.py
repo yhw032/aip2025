@@ -1,18 +1,29 @@
 import torch
-import pandas as pd
+import numpy as np
+import csv
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
 
 class WineDataset(Dataset):
-  # TODO: 작성 필요
     def __init__(self, csv_file):
-        self.data = pd.read_csv(csv_file)
-        self.x = torch.tensor(self.data.iloc[:, :-1].values, dtype=torch.float32)
-        self.y = torch.tensor(self.data.iloc[:, -1].values, dtype=torch.float32).view(-1, 1)
+        self.x = []
+        self.y = []
+        with open(csv_file, 'r') as f:
+            reader = csv.reader(f)
+            next(reader)    # Skip header
+            for row in reader:
+                features = list(map(float, row[:11])) # First 11 columns are features
+                label = int(row[11]) # Last column is label
+
+                self.x.append(features)
+                self.y.append(label)
+
+        self.x = torch.tensor(self.x, dtype=torch.float32)
+        self.y = torch.tensor(self.y, dtype=torch.long)
 
     def __len__(self):
-        return len(self.data)
+        return len(self.x)
     
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]
