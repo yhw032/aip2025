@@ -1,5 +1,4 @@
 import torch
-import numpy as np
 import csv
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
@@ -11,13 +10,13 @@ class WineDataset(Dataset):
         self.y = []
         with open(csv_file, 'r') as f:
             reader = csv.reader(f)
-            next(reader)    # Skip header
+            next(reader)    # 첫 행 데이터 무시
             for row in reader:
-                features = list(map(float, row[:11])) # First 11 columns are features
-                label = int(row[11]) # Last column is label
+                features = list(map(float, row[:11]))   # 1~11열 feature
+                quality = int(row[11])                  # 12열 와인품질(quality)
 
                 self.x.append(features)
-                self.y.append(label)
+                self.y.append(quality)
 
         self.x = torch.tensor(self.x, dtype=torch.float32)
         self.y = torch.tensor(self.y, dtype=torch.long)
