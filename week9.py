@@ -26,11 +26,15 @@ for epoch in range(nb_epochs + 1):
     optimizer.zero_grad()
     cost.backward()
     optimizer.step()
-    
+
     if epoch % 100 == 0:
         prediction = hypothesis >= torch.FloatTensor([0.5])
         correct_prediction = prediction.float() == y_train
         accuracy = correct_prediction.sum().item() / len(correct_prediction)
         print(f"Epoch: {epoch} / {nb_epochs}, Cost: {cost.item()}, Accuracy: {accuracy}")
 
+
+new_data = torch.Tensor([4,2])
+prediction = model(new_data)
+print(f"new data prediction: {prediction}")
 
